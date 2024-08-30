@@ -21,7 +21,7 @@ DATABASE_URL=your-database-url
 
 ## GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET :
 
-- Ce que c'est\*\* : Identifiants OAuth 2.0 utilisés
+- **Ce que c'est** : Identifiants OAuth 2.0 utilisés
   pour l'authentification via Google.
 - **À quoi ça sert** : Permet aux utilisateurs de se connecter à votre application
   avec leur compte Google.
@@ -31,11 +31,9 @@ DATABASE_URL=your-database-url
 ## NEXTAUTH_URL :
 
 - **Ce que c'est** : L'URL de votre application.
-
 - **À quoi ça sert** : Utilisée par NextAuth pour définir le domaine principal de
   l'application. Cette URL est cruciale pour la gestion des redirections après
   l'authentification.
-
 - **Comment la définir** : Pour le développement local, utilisez **http://localhost:3000**.
   En production, utilisez l'URL de votre site ex: **https://votresite.com**.
 
@@ -43,10 +41,8 @@ DATABASE_URL=your-database-url
 
 - **Ce que c'est** : Une clé secrète utilisée pour signer et crypter les tokens de session
   NextAuth.
-
 - **À quoi ça sert** : Garantit la sécurité des sessions et des données d'authentification
   de votre application.
-
 - **Comment la générer** : Utilisez la commande suivante dans votre terminal pour générer
   une clé sécurisée :
 
@@ -57,10 +53,8 @@ openssl rand -base64 32
 ## DATABASE_URL :
 
 - **Ce que c'est** : L'URL de connexion à votre base de données PostgreSQL.
-
 - **À quoi ça sert** : Permet à Prisma et à votre application d'interagir avec la base de
   données.
-
 - **Comment la configurer** :
   - Créez une base de données sur [Neon](https://neon.tech).
   - Récupérez l'URL de connexion (format `postgres://user:password@hostname:port/database`)
