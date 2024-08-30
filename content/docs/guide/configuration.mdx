@@ -1,9 +1,9 @@
 ---
-title: Guide et Tutoriel
+title: Configuration
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
 
-# Guide et Tutoriel
+# Configuration
 
 Après l'installation de **Galsenext**, suivez ces étapes pour configurer correctement votre environnement de développement.
 
@@ -21,7 +21,7 @@ DATABASE_URL=your-database-url
 
 ## GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET :
 
-- **Ce que c'est** : Identifiants OAuth 2.0 utilisés pour l'authentification via Google.
+-**Ce que c'est** : Identifiants OAuth 2.0 utilisés pour l'authentification via Google.
 
 - **À quoi ça sert** : Permet aux utilisateurs de se connecter à votre application avec leur compte Google.
 
@@ -55,4 +55,4 @@ openssl rand -base64 32
 
 - **Comment la configurer** :
   - Créez une base de données sur [Neon](https://neon.tech).
-  - Récupérez l'URL de connexion (format **postgres://user:password@hostname:port/database**) et définissez-la dans votre fichier **.env**.
+  - Récupérez l'URL de connexion (format `postgres://user:password@hostname:port/database`) et définissez-la dans votre fichier **.env**.
