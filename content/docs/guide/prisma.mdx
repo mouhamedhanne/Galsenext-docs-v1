@@ -1,4 +1,62 @@
 ---
-title: Neon
+title: Prisma
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
+
+# Configuration de Prisma
+
+**Galsenext** utilise `Prisma` comme ORM (Object-Relational Mapping) pour interagir avec la base de données. `Prisma` facilite la gestion de vos données et l'interaction avec votre base de données `PostgreSQL`.
+
+## Configuration Initiale de Prisma
+
+Le fichier de schéma Prisma `prisma/schema.prisma` est déjà configuré pour l'authentification de base. Voici comment configurer et utiliser Prisma :
+
+### 1. Initialisation de Prisma
+
+Lorsque vous avez installé Galsenext, `Prisma` est déjà inclus. Vous devez configurer votre base de données en suivant ces étapes :
+
+#### Migration de la Base de Données
+
+Pour appliquer le schéma Prisma à votre base de données, exécutez la commande suivante :
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Cette commande créera les tables nécessaires pour l'authentification et préparera votre base de données.
+
+### 2. Modification du Schéma Prisma
+
+Le `schéma` par défaut est suffisant pour gérer **l'authentification**.
+Cependant, vous pouvez modifier ce fichier en fonction de vos besoins.
+Par exemple, si vous souhaitez ajouter des modèles pour des fonctionnalités
+spécifiques, modifiez le fichier `prisma/schema.prisma` :
+
+```bash
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime @default(now())
+}
+```
+
+#### Application des Changements
+
+Après avoir modifié le fichier `schema.prisma`, vous devez exécuter une
+nouvelle migration pour appliquer ces changements à votre base de données :
+
+```bash
+npx prisma migrate dev --name add-post-model
+```
+
+Cette commande mettra à jour la base de données en ajoutant le nouveau modèle ou en appliquant d'autres modifications que vous avez faites au schéma.
+
+### Points à Vérifier
+
+- **Vérifiez la Configuration** : Assurez-vous que le fichier `.env`
+  contient les informations correctes pour se connecter à votre base de
+  données [voir Configuration des Variables d’Environnement](https://galsenext-docs.vercel.app/docs/guide/configuration#configuration-du-fichier-env).
+- **Consultez la Documentation Prisma** : Pour plus de détails sur l'utilisation de `Prisma` et des fonctionnalités avancées, consultez la [documentation officielle de Prisma](https://www.prisma.io/docs).
