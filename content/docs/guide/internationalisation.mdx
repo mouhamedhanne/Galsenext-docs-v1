@@ -3,20 +3,23 @@ title: Internationalisation
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
 
-# Configuration de l'Internationalisation (i18n) et des Providers
+# Internationalization (i18n) and Providers Configuration
 
-**Galsenext** est configuré pour prendre en charge l'internationalisation
-(i18n), l'authentification, les thèmes, et bien plus. Cette section
-fournit une explication détaillée sur la configuration des `Providers`
-et sur leur utilisation pour que l'application soit prête à fonctionner.
+**Galsenext** is configured to support internationalization (i18n), authentication, themes, and more. This section provides a detailed explanation on configuring the `Providers` and their usage to get the application up and running.
 
-## Configuration des Providers
+## Providers Configuration
 
-Dans **Galsenext**, plusieurs providers sont utilisés pour la gestion de l'état global, des sessions utilisateur, des thèmes, et des traductions.
+In **Galsenext**, several providers are used for managing global state, user sessions, themes, and translations.
 
-Voici la configuration du composant `Providers` :
+Here is the configuration of the `Providers` component:
 
-### Composant `Providers`
+### `Providers` Component
+
+The `Providers` component consolidates all the necessary providers for your Next.js application. It is often used in the `_app.tsx` file to wrap the application and provide the necessary contexts to all components.
+
+Here is the configuration of the 'Providers' component:
+
+### Component `Providers`
 
 ```bash
 "use client";
@@ -56,22 +59,20 @@ export const Providers = (props: PropsWithChildren<{ locale: string }>) => {
 
 ```
 
-### Explication des Providers Utilisés
+### Explanation of Used Providers
 
-- **ThemeProvider** : Gère les thèmes de l'application (clair ou sombre).
-- **SessionProvider** : Fournit des fonctionnalités d'authentification basées sur `next-auth`.
-- **Toaster** : Gère les notifications utilisateurs.
-- **ProgressBar** : Barre de progression pour indiquer le chargement de pages.
-- **QueryClientProvider** : Gère les requêtes côté client via `react-query`.
-- **I18nProviderClient** : Fournit les fonctionnalités d'internationalisation côté client.
+- **ThemeProvider**: Manages the application themes (light or dark).
+- **SessionProvider**: Provides authentication features based on `next-auth`.
+- **Toaster**: Manages user notifications.
+- **ProgressBar**: A progress bar to indicate page loading.
+- **QueryClientProvider**: Manages client-side queries via `react-query`.
+- **I18nProviderClient**: Provides client-side internationalization features.
 
-## Intégration dans le Layout
+## Integration into the Layout
 
-Pour intégrer ces `Providers` dans votre application, vous devez les
-envelopper autour de votre composant `RootLayout`. Voici un exemple de
-configuration de `RootLayout` :
+To integrate these `Providers` into your application, you need to wrap them around your `RootLayout` component. Here is an example configuration for `RootLayout`:
 
-### Fichier `layout.tsx`
+### File `layout.tsx`
 
 ```bash
 import type { Metadata } from "next";
@@ -102,17 +103,17 @@ export default function RootLayout({
 }
 ```
 
-### Explication
+### Explanation
 
-- **RootLayout** : Ce composant enveloppe l'application et fournit le contexte global nécessaire pour le bon fonctionnement des différentes fonctionnalités, y compris les traductions, les thèmes, et les sessions.
+- **RootLayout**: This component wraps the application and provides the necessary global context for the proper functioning of various features, including translations, themes, and sessions.
 
-## Configuration de l'Internationalisation (i18n)
+## Internationalization (i18n) Configuration
 
-Pour une application multilingue, la configuration de l'internationalisation est essentielle
+For a multilingual application, configuring internationalization is essential.
 
-### Configuration côté Client
+### Client-Side Configuration
 
-Le code suivant configure le client pour supporter les traductions anglaises et françaises :
+The following code configures the client to support English and French translations:
 
 ```bash
 "use client";
@@ -130,9 +131,9 @@ export const {
 });
 ```
 
-### Configuration côté Serveur
+### Server-Side Configuration
 
-Le serveur utilise `createI18nServer` pour la gestion des traductions :
+The server uses `createI18nServer` for managing translations:
 
 ```bash
 import { createI18nServer } from "next-international/server";
@@ -143,9 +144,9 @@ export const { getI18n, getScopedI18n, getStaticParams } = createI18nServer({
 });
 ```
 
-## Exemple d'Utilisation
+## Usage Example
 
-Voici un exemple d'utilisation d'un composant avec `internationalisation`
+Here is an example of using a component with internationalization:
 
 ```bash
 import { getAuthSession } from "@/src/lib/auth";
@@ -175,18 +176,15 @@ const AuthenticatedContent: React.FC<AuthenticatedContentProps> = async ({
 export default AuthenticatedContent;
 ```
 
-### Explication
+### Explanation
 
-- **getI18n** : Récupère les traductions côté serveur.
-- **LayoutHeader et LayoutTitle** : Composants de mise en page pour la structure de l'application.
-- **t("new")** : Utilise la fonction de traduction pour afficher le texte dans la langue actuelle.
+- **getI18n**: Retrieves translations on the server side.
+- **LayoutHeader and LayoutTitle**: Layout components for the application's structure.
+- **t("new")**: Uses the translation function to display text in the current language.
 
-## Configuration du Middleware pour l'Internationalisation (i18n)
+## Middleware Configuration for Internationalization (i18n)
 
-Pour une gestion optimale des langues dans votre application, **Galsenext**
-utilise un middleware dédié pour rediriger les utilisateurs vers la
-version linguistique appropriée en fonction de leur préférence
-linguistique ou de la langue par défaut de l'application.
+For optimal language management in your application, **Galsenext** uses a dedicated middleware to redirect users to the appropriate language version based on their language preference or the application's default language.
 
 ### Middleware `i18n`
 
@@ -208,23 +206,14 @@ export const config = {
 };
 ```
 
-### Explication du Middleware
+### Explanation of the Middleware
 
-- `createI18nMiddleware` : Cette fonction génère un middleware pour gérer
-  l'internationalisation dans l'application Next.js. Elle est configurée
-  avec les langues supportées (`locales`) et la langue par défaut
-  (`defaultLocale`).
-- `middleware` : Cette fonction est exécutée à chaque requête, appliquant
-  le middleware de redirection linguistique en fonction de la langue de
-  l'utilisateur ou de la langue par défaut.
-- `config` : La configuration du middleware spécifie les routes auxquelles
-  il s'applique, excluant les API, les fichiers statiques, les fichiers
-  générés par Next.js, et autres ressources non pertinentes.
+- `createI18nMiddleware`: This function generates middleware to handle internationalization in the Next.js application. It is configured with supported languages (`locales`) and the default language (`defaultLocale`).
+- `middleware`: This function is executed on every request, applying the language redirection middleware based on the user's language or the default language.
+- `config`: The middleware configuration specifies which routes it applies to, excluding APIs, static files, Next.js generated files, and other non-relevant resources.
 
-### Pourquoi Utiliser ce Middleware ?
+### Why Use This Middleware?
 
-- **Redirection Automatique** : Redirige les utilisateurs vers leur langue
-  préférée ou la langue par défaut, offrant une expérience utilisateur
-  personnalisée.
-- **Gestion Centralisée des Langues** : Simplifie la gestion des langues en concentrant la logique de sélection de langue en un seul endroit.
-- **Support Multilingue Facile** : Rend votre application facilement adaptable pour un public global, en assurant que le bon contenu est servi à la bonne audience.
+- **Automatic Redirection**: Redirects users to their preferred language or the default language, providing a personalized user experience.
+- **Centralized Language Management**: Simplifies language management by concentrating language selection logic in one place.
+- **Easy Multilingual Support**: Makes your application easily adaptable for a global audience, ensuring that the right content is served to the right audience.
