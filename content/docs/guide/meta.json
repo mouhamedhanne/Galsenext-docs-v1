@@ -1,5 +1,11 @@
 {
   "title": "Guide et Tutoriel",
-  "pages": ["configuration", "neon", "prisma"],
+  "pages": [
+    "configuration",
+    "neon",
+    "prisma",
+    "internationalisation",
+    "Authentification"
+  ],
   "defaultOpen": true
 }
