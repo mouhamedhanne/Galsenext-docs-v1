@@ -1,0 +1,65 @@
+---
+title: Neon
+description: Guide complet pour configurer et utiliser Galsenext après l'installation.
+---
+
+**Neon** est une base de données PostgreSQL serverless qui facilite la gestion des bases de données avec une scalabilité flexible. Pour utiliser Neon avec **Galsenext**, suivez les instructions ci-dessous.
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir les éléments suivants :
+
+- Un compte `Neon`. Si vous n'avez pas encore de compte, inscrivez-vous sur [Neon](https://neon.tech).
+
+## Création et Configuration de la Base de Données
+
+### 1. Créer une Base de Données sur Neon
+
+       1. Connectez-vous à votre compte Neon.
+       2. Dans le tableau de bord Neon, cliquez sur `Create Database`.
+       3. Donnez un nom à votre base de données et sélectionnez la région de déploiement qui vous convient.
+       4. Cliquez sur Create pour créer votre base de données.
+
+### 2. Obtenir les Informations de Connexion
+
+Une fois votre base de données créée, vous aurez besoin de plusieurs informations pour configurer votre projet :
+
+- **DATABASE_URL** : L'URL de connexion à votre base de données. Vous la trouverez dans les paramètres de votre base de données sur Neon.
+
+Voici un exemple d'URL de connexion :
+
+```bash
+postgresql://username:password@hostname:port/database
+```
+
+### 3. Configurer votre Fichier `.env`
+
+Ajoutez les informations de connexion de votre base de données Neon à votre fichier .env à la racine de votre projet. Voici un exemple de configuration :
+
+```bash
+DATABASE_URL=postgresql://username:password@hostname:port/database
+```
+
+## Exemple de Connexion à Neon avec Prisma
+
+Assurez-vous que le fichier `prisma/schema.prisma` utilise la variable d'environnement `DATABASE_URL` pour se connecter à votre base de données `Neon` :
+
+```bash
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+```
+
+## Points Importants
+
+- **Vérifiez les Informations de Connexion** : Assurez-vous que l'URL de connexion est correcte et que les informations sont à jour dans votre fichier `.env`.
+- **Consultez la Documentation Neon** : Pour plus de détails sur la configuration et les fonctionnalités avancées de `Neon`, consultez la [documentation officielle de Neon](https://neon.tech/docs/introduction).
+
+## Dépannage
+
+Si vous rencontrez des problèmes de connexion ou d'autres erreurs liées à Neon, voici quelques étapes de dépannage
+
+- **Vérifiez l'URL de Connexion** : Assurez-vous que l'URL de connexion dans le fichier `.env` est correcte.
+- **Testez la Connexion** : Utilisez un client `PostgreSQL` pour tester la connexion à la base de données avec les informations fournies.
+- **Consultez les Logs** : Vérifiez les logs de votre application et de `Neon` pour des messages d'erreur qui peuvent fournir des indices sur les problèmes rencontrés.

@@ -1,5 +1,5 @@
 {
   "title": "Guide et Tutoriel",
-  "pages": ["configuration", "prisma"],
+  "pages": ["configuration", "neon", "prisma"],
   "defaultOpen": true
 }
