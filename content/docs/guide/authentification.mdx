@@ -2,3 +2,434 @@
 title: Authentification
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
+
+# Authentification et Onboarding
+
+L'authentification dans votre projet utilise `NextAuth.js`, un framework
+complet de gestion des identités et des sessions. Voici les différents
+aspects :
+
+## Configuration de NextAuth
+
+Le fichier `pages/api/auth/[...nextauth].ts` configure les options d'authentification de NextAuth :
+
+```bash
+import { prisma } from "@/src/lib/prisma";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import NextAuth, { AuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+
+const FixedPrismaAdapter = PrismaAdapter(prisma) as any;
+
+export const authOptions: AuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
+  adapter: FixedPrismaAdapter,
+  theme: {
+    logo: "/galsenext.png",
+  },
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: `${profile.given_name} ${profile.family_name}`,
+          email: profile.email,
+          image: profile.picture,
+          role: profile.role ? profile.role : "user",
+          emailVerified: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          username: profile.username ? profile.username : "",
+          bio: profile.bio ? profile.bio : "",
+          link: profile.link ? profile.link : "",
+          isOnboarded: false,
+        };
+      },
+    }),
+  ],
+
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.isOnboarded = token.isOnboarded as boolean;
+      }
+      return session;
+    },
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.isOnboarded = user.isOnboarded;
+      }
+
+      if (!account) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { isOnboarded: true },
+        });
+        if (dbUser) {
+          token.isOnboarded = dbUser.isOnboarded;
+        }
+      }
+
+      return token;
+    },
+  },
+};
+
+export default NextAuth(authOptions);
+```
+
+### Gestion des Sessions avec JWT
+
+1. **JWT (JSON Web Tokens)** : La gestion de session est effectuée à l'aide
+   de `JWT`, ce qui permet de stocker les informations de session de manière
+   sécurisée dans le `token`.
+2. **Callbacks** :
+   - `session callback` : Lors de la récupération d'une session, on ajoute
+     les informations supplémentaires de l'utilisateur (`id`, `role`, `isOnboarded`)
+     au `session.user`.
+   - `jwt callback` : Lors de la création du token `JWT`, on ajoute les
+     informations de l'utilisateur telles que `id`, `role`, et `isOnboarded`.
+3. **Système de Rôles** :
+   - Les rôles (`user`, `admin`, etc.) sont assignés aux utilisateurs et
+     gérés via le token `JWT`. Ce système permet de contrôler l'accès et les
+     privilèges sur la plateforme.
+
+## Api Onboarding
+
+Ce fichier `app/api/user/onboard/route.ts` contient l'API de l'onboarding qui est appelée
+pour mettre à jour les informations de l'utilisateur après
+la première connexion.
+
+```bash
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { prisma } from "@/src/lib/prisma";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
+  const { username, bio } = await request.json();
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        username,
+        bio,
+        isOnboarded: true,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Onboarding réussi",
+      user: updatedUser,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Erreur lors de l'onboarding" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+- **Authentification de l'utilisateur** : Vérifie si l'utilisateur est
+  authentifié en récupérant la session serveur via `getServerSession`.
+- **Mise à jour des données utilisateur** : Met à jour les informations
+  de l'utilisateur dans la base de données pour marquer l'onboarding
+  comme complété (`isOnboarded: true`).
+
+## Composant d'onboarding : `component/onboarding/Onboarding.tsx`
+
+Le composant `Onboarding.tsx` guide l'utilisateur à travers le processus
+d'onboarding après sa première connexion. Voici le code du composant
+réorganisé en sections pour plus de clarté :
+
+### Définition des types et imports
+
+```bash
+"use client";
+
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { CheckCircle, Circle, Loader2, XCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "../ui/button";
+
+interface ProgressBarProps {
+  currentStep: number;
+  totalSteps: number;
+}
+
+interface OnboardingStepProps {
+  image: string;
+  description: string;
+  onNext: () => void;
+  stepNumber: number;
+  totalSteps: number;
+}
+
+interface OnboardingFormProps {
+  onComplete: (userData: { username: string; bio: string }) => Promise<void>;
+  stepNumber: number;
+  totalSteps: number;
+}
+
+interface OnboardingStep {
+  image: string;
+  description: string;
+}
+```
+
+### Composant de la barre de progression
+
+```bash
+const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
+  const progress = ((currentStep - 1) / (totalSteps - 1)) * 100;
+
+  const getIcon = (index: number) => {
+    if (index < currentStep - 1) {
+      return <CheckCircle className="w-6 h-6 text-green-500" />;
+    } else if (index === currentStep - 1) {
+      return <Circle className="w-6 h-6 text-blue-500" />;
+    } else {
+      return <XCircle className="w-6 h-6 text-gray-400" />;
+    }
+  };
+
+  return (
+    <div className="w-full relative">
+      <div className="h-2 bg-gray-200 mt-3">
+        <div
+          className="absolute top-0 left-0 h-full bg-green-500 transition-all duration-300 ease-in-out"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+      <div className="absolute flex w-full justify-between top-1/2 transform -translate-y-1/2">
+        {Array.from({ length: totalSteps }).map((_, index) => (
+          <div key={index} className="flex items-center justify-center w-8 h-8 bg-white rounded-full border-2">
+            {getIcon(index)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+```
+
+### Composant des étapes d'onboarding
+
+```bash
+const OnboardingStep: React.FC<OnboardingStepProps> = ({ image, description, onNext, stepNumber, totalSteps }) => {
+  return (
+    <Card className="flex flex-col items-center justify-center">
+      <CardHeader>
+        <CardTitle>{`Etape ${stepNumber} sur ${totalSteps}`}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col items-center justify-center">
+        <Image src={image} alt="Onboarding Step" width={400} height={300} />
+        <p className="mt-4 text-center">{description}</p>
+        <Button onClick={onNext} className="mt-4">
+          Suivant
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+```
+
+### Formulaire d'onboarding
+
+```bash
+const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete, stepNumber, totalSteps }) => {
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    await onComplete({ username, bio });
+    setLoading(false);
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Complétez votre profil</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-4">
+          <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Nom d'utilisateur" />
+          <Input value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Bio" />
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? <Loader2 className="animate-spin" /> : "Soumettre"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+```
+
+### Composant principal d'onboarding
+
+```bash
+const Onboarding: React.FC = () => {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3; // Nombre total d'étapes d'onboarding
+
+  const onboardingSteps: OnboardingStep[] = [
+    { image: "/step1.png", description: "Bienvenue sur Galsenext!" },
+    { image: "/step2.png", description: "Renseignez votre profil." },
+    { image: "/step3.png", description: "Vous êtes prêt à commencer!" },
+  ];
+
+  const handleNextStep = () => {
+    setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
+  };
+
+  const handleCompleteOnboarding = async (userData: { username: string; bio: string }) => {
+    if (!session?.user) return;
+
+    const response = await fetch("/api/user/onboard", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
+
+    if (response.ok) {
+      router.push("/dashboard");
+    } else {
+      console.error("Erreur lors de l'onboarding");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+      {currentStep < totalSteps ? (
+        <OnboardingStep
+          image={onboardingSteps[currentStep - 1].image}
+          description={onboardingSteps[currentStep - 1].description}
+          onNext={handleNextStep}
+          stepNumber={currentStep}
+          totalSteps={totalSteps}
+        />
+      ) : (
+        <OnboardingForm onComplete={handleCompleteOnboarding} stepNumber={currentStep} totalSteps={totalSteps} />
+      )}
+    </div>
+  );
+};
+
+export default Onboarding;
+```
+
+#### Explications supplémentaires
+
+- **Composant `ProgressBar`** : Affiche la progression de l'utilisateur dans
+  le processus d'onboarding.
+- **Composant `OnboardingStep`** : Représente une étape individuelle du
+  processus d'onboarding.
+- **Composant `OnboardingForm`** : Formulaire de saisie des informations
+  utilisateur (nom d'utilisateur et bio).
+- **Composant `Onboarding`** : Gère la logique complète du processus
+  d'onboarding, y compris la gestion des étapes et l'achèvement de
+  l'onboarding.
+
+## Explication du fichier `auth.ts`
+
+Le fichier `auth.ts` dans `/src/lib/auth` fournit des fonctions utilitaires
+pour récupérer les sessions d'authentification côté serveur. Il utilise
+`getServerSession` de `next-auth` pour obtenir les informations de la session
+utilisateur en cours. Ce fichier facilite l'authentification et
+l'autorisation dans différents contextes tels que les requêtes d'API ou
+les pages nécessitant une authentification.
+
+```bash
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../pages/api/auth/[...nextauth]";
+
+type ParametersGetServerSession =
+  | []
+  | [GetServerSidePropsContext["req"], GetServerSidePropsContext["res"]]
+  | [NextApiRequest, NextApiResponse];
+
+export const getAuthSession = async (
+  ...parameters: ParametersGetServerSession
+) => {
+  const session = await getServerSession(...parameters, authOptions);
+  return session;
+};
+
+export const getRequiredAuthSession = async (
+  ...parameters: ParametersGetServerSession
+) => {
+  const session = await getServerSession(...parameters, authOptions);
+
+  if (!session?.user.id) {
+    throw new Error("Unauthorized");
+  }
+
+  return session as {
+    user: {
+      id: string;
+      email?: string;
+      image?: string;
+      name?: string;
+    };
+  };
+};
+```
+
+### Explication des Fonctions Principales
+
+1. `getAuthSession` :
+
+   - Cette fonction utilise `getServerSession` pour récupérer la session
+     utilisateur actuelle. Elle accepte des paramètres qui peuvent provenir
+     de différents contextes de requêtes (côté serveur ou API).
+   - Elle retourne la session d'authentification sans vérifier si l'utilisateur est authentifié ou non.
+
+2. `getRequiredAuthSession` :
+   - Cette fonction récupère également la session utilisateur via
+     `getServerSession`, mais elle effectue une vérification supplémentaire
+     pour s'assurer que l'utilisateur est bien authentifié.
+   - Si la session ne contient pas d'ID utilisateur valide, elle lance
+     une erreur "Unauthorized".
+   - Elle retourne un objet de session enrichi avec des informations
+     utilisateur obligatoires.
+
+#### Utilisation dans l'Application
+
+- `getAuthSession` peut être utilisée lorsque vous avez besoin d'accéder à
+  la session utilisateur sans exiger d'authentification stricte, par
+  exemple, pour personnaliser le contenu d'une page publique en fonction
+  de l'utilisateur connecté.
+- `getRequiredAuthSession` est utilisée dans les routes ou les pages qui
+  nécessitent une authentification obligatoire, garantissant ainsi que seul
+  un utilisateur authentifié peut accéder à la ressource.
