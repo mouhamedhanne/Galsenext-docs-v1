@@ -1,4 +1,33 @@
 ---
 title: Guide du Contributeur
-description: Guide complet pour configurer et utiliser Galsenext après l'installation.
+description:
 ---
+
+Ce guide fournit des instructions pour contribuer au développement de **Galsenext**.
+
+## 1. Installation et Configuration
+
+      1. **Fork et Clone** : Commencez par forker le dépôt **Galsenext** sur votre compte GitHub et cloner le sur votre machine locale.
+      2. **Installation des Dépendances** : Exécutez `npm install` pour installer toutes les dépendances du projet.
+      3. **Créer et Mettre en Place le Fichier `.env `**:
+         - Dupliquez le fichier `.env.example` en le renommant `.env`.
+         - Remplissez les variables d'environnement nécessaires (par exemple, les clés API, les identifiants de connexion à la base de données, etc.) en suivant les instructions du fichier.
+      4. **Commencer le Développement** : Utilisez npm run dev pour démarrer le serveur de développement local.
+
+## 2. Règles de Contribution
+
+      - **Branches** : Utilisez des branches descriptives pour vos
+      fonctionnalités (`feature/nouvelle-fonctionnalite`) et pour corriger
+      des bugs (`fix/correction-bug`).
+      - **Commits ** : Faites des commits réguliers avec des messages explicites sur les changements effectués.
+      - **Tests** : Assurez-vous que votre code est bien couvert par des tests et que toutes les vérifications passent (`npm run test`).
+
+## 3. Soumettre une Pull Request
+
+      - **Pull Request** : Ouvrez une Pull Request (PR) vers la branche `main` avec une description détaillée de vos changements.
+      - **Revue de Code** : Attendez la revue de code des mainteneurs et répondez aux commentaires ou demandez des clarifications si nécessaire.
+
+## 4. Ressources
+
+      - **Guide de Style** : Suivez notre guide de style de code disponible dans `CONTRIBUTING.md`.
+      - **Tests** : Reportez-vous à la documentation des tests pour vous assurer que votre code est testé correctement.
