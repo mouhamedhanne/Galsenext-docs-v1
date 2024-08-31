@@ -3,15 +3,13 @@ title: Authentification
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
 
-# Authentification et Onboarding
+# Authentication and Onboarding
 
-L'authentification dans votre projet utilise `NextAuth.js`, un framework
-complet de gestion des identités et des sessions. Voici les différents
-aspects :
+Authentication in your project uses `NextAuth.js`, a comprehensive identity and session management framework. Here are the different aspects:
 
-## Configuration de NextAuth
+## NextAuth Configuration
 
-Le fichier `pages/api/auth/[...nextauth].ts` configure les options d'authentification de NextAuth :
+The file `pages/api/auth/[...nextauth].ts` configures the authentication options for NextAuth:
 
 ```bash
 import { prisma } from "@/src/lib/prisma";
@@ -86,27 +84,18 @@ export const authOptions: AuthOptions = {
 export default NextAuth(authOptions);
 ```
 
-### Gestion des Sessions avec JWT
+### Session Management with JWT
 
-1. **JWT (JSON Web Tokens)** : La gestion de session est effectuée à l'aide
-   de `JWT`, ce qui permet de stocker les informations de session de manière
-   sécurisée dans le `token`.
-2. **Callbacks** :
-   - `session callback` : Lors de la récupération d'une session, on ajoute
-     les informations supplémentaires de l'utilisateur (`id`, `role`, `isOnboarded`)
-     au `session.user`.
-   - `jwt callback` : Lors de la création du token `JWT`, on ajoute les
-     informations de l'utilisateur telles que `id`, `role`, et `isOnboarded`.
-3. **Système de Rôles** :
-   - Les rôles (`user`, `admin`, etc.) sont assignés aux utilisateurs et
-     gérés via le token `JWT`. Ce système permet de contrôler l'accès et les
-     privilèges sur la plateforme.
+1. **JWT (JSON Web Tokens)**: Session management is handled using `JWT`, which securely stores session information in the `token`.
+2. **Callbacks**:
+   - `session callback`: When retrieving a session, additional user information (`id`, `role`, `isOnboarded`) is added to `session.user`.
+   - `jwt callback`: When creating the `JWT` token, user information such as `id`, `role`, and `isOnboarded` is added.
+3. **Role System**:
+   - Roles (`user`, `admin`, etc.) are assigned to users and managed via the `JWT` token. This system controls access and privileges on the platform.
 
-## Api Onboarding
+## Onboarding API
 
-Ce fichier `app/api/user/onboard/route.ts` contient l'API de l'onboarding qui est appelée
-pour mettre à jour les informations de l'utilisateur après
-la première connexion.
+The file `app/api/user/onboard/route.ts` contains the onboarding API, which is called to update user information after the first login.
 
 ```bash
 import { NextRequest, NextResponse } from "next/server";
@@ -146,19 +135,14 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-- **Authentification de l'utilisateur** : Vérifie si l'utilisateur est
-  authentifié en récupérant la session serveur via `getServerSession`.
-- **Mise à jour des données utilisateur** : Met à jour les informations
-  de l'utilisateur dans la base de données pour marquer l'onboarding
-  comme complété (`isOnboarded: true`).
+- **User Authentication**: Checks if the user is authenticated by retrieving the server session using `getServerSession`.
+- **Updating User Data**: Updates user information in the database to mark onboarding as completed (`isOnboarded: true`).
 
-## Composant d'onboarding : `component/onboarding/Onboarding.tsx`
+## Onboarding Component: `component/onboarding/Onboarding.tsx`
 
-Le composant `Onboarding.tsx` guide l'utilisateur à travers le processus
-d'onboarding après sa première connexion. Voici le code du composant
-réorganisé en sections pour plus de clarté :
+The `Onboarding.tsx` component guides the user through the onboarding process after their first login. Here is the component code reorganized into sections for clarity:
 
-### Définition des types et imports
+### Type Definitions and Imports
 
 ```bash
 "use client";
@@ -198,7 +182,7 @@ interface OnboardingStep {
 }
 ```
 
-### Composant de la barre de progression
+### Progress Bar Component
 
 ```bash
 const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
@@ -234,7 +218,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps }) =>
 };
 ```
 
-### Composant des étapes d'onboarding
+### Onboarding Steps Component
 
 ```bash
 const OnboardingStep: React.FC<OnboardingStepProps> = ({ image, description, onNext, stepNumber, totalSteps }) => {
@@ -255,7 +239,7 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({ image, description, onN
 };
 ```
 
-### Formulaire d'onboarding
+### Onboarding form
 
 ```bash
 const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete, stepNumber, totalSteps }) => {
@@ -288,7 +272,7 @@ const OnboardingForm: React.FC<OnboardingFormProps> = ({ onComplete, stepNumber,
 };
 ```
 
-### Composant principal d'onboarding
+### Core Onboarding Component
 
 ```bash
 const Onboarding: React.FC = () => {
@@ -344,26 +328,16 @@ const Onboarding: React.FC = () => {
 export default Onboarding;
 ```
 
-#### Explications supplémentaires
+#### Additional Explanations
 
-- **Composant `ProgressBar`** : Affiche la progression de l'utilisateur dans
-  le processus d'onboarding.
-- **Composant `OnboardingStep`** : Représente une étape individuelle du
-  processus d'onboarding.
-- **Composant `OnboardingForm`** : Formulaire de saisie des informations
-  utilisateur (nom d'utilisateur et bio).
-- **Composant `Onboarding`** : Gère la logique complète du processus
-  d'onboarding, y compris la gestion des étapes et l'achèvement de
-  l'onboarding.
+- **`ProgressBar` Component**: Displays the user's progress through the onboarding process.
+- **`OnboardingStep` Component**: Represents an individual step in the onboarding process.
+- **`OnboardingForm` Component**: Form for entering user information (username and bio).
+- **`Onboarding` Component**: Manages the complete onboarding process, including step management and onboarding completion.
 
-## Explication du fichier `auth.ts`
+## Explanation of the `auth.ts` File
 
-Le fichier `auth.ts` dans `/src/lib/auth` fournit des fonctions utilitaires
-pour récupérer les sessions d'authentification côté serveur. Il utilise
-`getServerSession` de `next-auth` pour obtenir les informations de la session
-utilisateur en cours. Ce fichier facilite l'authentification et
-l'autorisation dans différents contextes tels que les requêtes d'API ou
-les pages nécessitant une authentification.
+The `auth.ts` file in `/src/lib/auth` provides utility functions for retrieving server-side authentication sessions. It uses `getServerSession` from `next-auth` to obtain the current user's session information. This file facilitates authentication and authorization in various contexts, such as API requests or pages requiring authentication.
 
 ```bash
 import {
@@ -406,30 +380,20 @@ export const getRequiredAuthSession = async (
 };
 ```
 
-### Explication des Fonctions Principales
+### Explanation of Main Functions
 
-1. `getAuthSession` :
+1. `getAuthSession`:
 
-   - Cette fonction utilise `getServerSession` pour récupérer la session
-     utilisateur actuelle. Elle accepte des paramètres qui peuvent provenir
-     de différents contextes de requêtes (côté serveur ou API).
-   - Elle retourne la session d'authentification sans vérifier si l'utilisateur est authentifié ou non.
+   - This function uses `getServerSession` to retrieve the current user session. It accepts parameters that can come from various request contexts (server-side or API).
+   - It returns the authentication session without checking if the user is authenticated.
 
-2. `getRequiredAuthSession` :
-   - Cette fonction récupère également la session utilisateur via
-     `getServerSession`, mais elle effectue une vérification supplémentaire
-     pour s'assurer que l'utilisateur est bien authentifié.
-   - Si la session ne contient pas d'ID utilisateur valide, elle lance
-     une erreur "Unauthorized".
-   - Elle retourne un objet de session enrichi avec des informations
-     utilisateur obligatoires.
+2. `getRequiredAuthSession`:
 
-#### Utilisation dans l'Application
+   - This function also retrieves the user session via `getServerSession`, but it performs an additional check to ensure the user is authenticated.
+   - If the session does not contain a valid user ID, it throws an "Unauthorized" error.
+   - It returns a session object enriched with required user information.
 
-- `getAuthSession` peut être utilisée lorsque vous avez besoin d'accéder à
-  la session utilisateur sans exiger d'authentification stricte, par
-  exemple, pour personnaliser le contenu d'une page publique en fonction
-  de l'utilisateur connecté.
-- `getRequiredAuthSession` est utilisée dans les routes ou les pages qui
-  nécessitent une authentification obligatoire, garantissant ainsi que seul
-  un utilisateur authentifié peut accéder à la ressource.
+#### Usage in the Application
+
+- `getAuthSession` can be used when you need to access the user session without requiring strict authentication, for example, to customize the content of a public page based on the logged-in user.
+- `getRequiredAuthSession` is used in routes or pages that require mandatory authentication, ensuring that only an authenticated user can access the resource.

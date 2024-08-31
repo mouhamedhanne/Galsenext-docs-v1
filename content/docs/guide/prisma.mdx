@@ -3,18 +3,13 @@ title: Prisma
 description: Guide complet pour configurer et utiliser Galsenext après l'installation.
 ---
 
-# Configuration de Prisma
+# Prisma Configuration
 
-**Galsenext** utilise `Prisma` comme ORM (Object-Relational Mapping) pour interagir avec la base de données. `Prisma` facilite la gestion de vos données et l'interaction avec votre base de données `PostgreSQL`.
+**Galsenext** uses `Prisma` as an ORM (Object-Relational Mapping) to interact with the database. `Prisma` simplifies data management and interaction with your `PostgreSQL` database.
 
-## Configuration de l'Instance Prisma
+## Prisma Instance Configuration
 
-Dans **Galsenext**, Prisma est configuré pour fonctionner de manière optimale
-à la fois en mode développement et en production. Le fichier `prisma.ts`
-situé dans le répertoire `/src/lib/` est configuré pour créer une instance
-unique de Prisma qui est réutilisée tout au long de l'application,
-permettant ainsi d'optimiser les performances et de minimiser les
-problèmes de connexion à la base de données.
+In **Galsenext**, Prisma is configured to operate optimally both in development and production modes. The `prisma.ts` file located in the `/src/lib/` directory is configured to create a unique instance of Prisma that is reused throughout the application, optimizing performance and minimizing database connection issues.
 
 ```bash
 // @ts-nocheck
@@ -35,47 +30,31 @@ if (process.env.NODE_ENV !== "production") {
 }
 ```
 
-- **Création d'une Instance Unique de Prisma** : L'instance de Prisma est
-  stockée dans la variable globale `global.prisma` pour éviter de créer
-  plusieurs instances dans un environnement de développement, ce qui
-  pourrait entraîner des erreurs de connexion à la base de données.
-  Cette approche est particulièrement utile avec `Next.js` qui utilise un
-  système de rafraîchissement automatique des modules en mode développement.
-- **Configuration des Logs de Prisma** : En mode développement
-  (`process.env.NODE_ENV === "development"`), Prisma est configuré pour
-  afficher les logs de requêtes, les erreurs et les avertissements
-  (`["query", "error", "warn"]`). En production, seuls les logs d'erreurs
-  sont activés (`["error"]`) pour éviter d'exposer des informations sensibles.
-- **Vérification de l'Environnement** : Le code vérifie si l'environnement
-  n'est pas en production (`process.env.NODE_ENV !== "production"`). Dans
-  ce cas, il assigne l'instance de Prisma à `global.prisma` pour garantir
-  qu'une seule instance est utilisée tout au long du cycle de vie de
-  l'application.
+- **Creating a Single Instance of Prisma**: The Prisma instance is stored in the global variable `global.prisma` to prevent multiple instances from being created in a development environment, which could cause database connection errors. This approach is particularly useful with `Next.js`, which uses an automatic module refresh system in development mode.
+- **Prisma Logs Configuration**: In development mode (`process.env.NODE_ENV === "development"`), Prisma is configured to display query, error, and warning logs (`["query", "error", "warn"]`). In production, only error logs are enabled (`["error"]`) to avoid exposing sensitive information.
+- **Environment Check**: The code checks if the environment is not in production (`process.env.NODE_ENV !== "production"`). If so, it assigns the Prisma instance to `global.prisma` to ensure that only one instance is used throughout the application's lifecycle.
 
-## Configuration Initiale de Prisma
+## Initial Prisma Setup
 
-Le fichier de schéma Prisma `prisma/schema.prisma` est déjà configuré pour l'authentification de base. Voici comment configurer et utiliser Prisma :
+The Prisma schema file `prisma/schema.prisma` is already configured for basic authentication. Here’s how to configure and use Prisma:
 
-### 1. Initialisation de Prisma
+### 1. Initializing Prisma
 
-Lorsque vous avez installé Galsenext, `Prisma` est déjà inclus. Vous devez configurer votre base de données en suivant ces étapes :
+When you have installed Galsenext, `Prisma` is already included. You need to set up your database by following these steps:
 
-#### Migration de la Base de Données
+#### Database Migration
 
-Pour appliquer le schéma Prisma à votre base de données, exécutez la commande suivante :
+To apply the Prisma schema to your database, run the following command:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-Cette commande créera les tables nécessaires pour l'authentification et préparera votre base de données.
+This command will create the necessary tables for authentication and prepare your database.
 
-### 2. Modification du Schéma Prisma
+### 2. Modifying the Prisma Schema
 
-Le `schéma` par défaut est suffisant pour gérer **l'authentification**.
-Cependant, vous pouvez modifier ce fichier en fonction de vos besoins.
-Par exemple, si vous souhaitez ajouter des modèles pour des fonctionnalités
-spécifiques, modifiez le fichier `prisma/schema.prisma` :
+The default `schema` is sufficient to handle **authentication**. However, you can modify this file according to your needs. For example, if you want to add models for specific features, edit the `prisma/schema.prisma` file:
 
 ```bash
 model Post {
@@ -88,20 +67,17 @@ model Post {
 }
 ```
 
-#### Application des Changements
+#### Applying Changes
 
-Après avoir modifié le fichier `schema.prisma`, vous devez exécuter une
-nouvelle migration pour appliquer ces changements à votre base de données :
+After modifying the `schema.prisma` file, you need to run a new migration to apply these changes to your database:
 
 ```bash
 npx prisma migrate dev --name add-post-model
 ```
 
-Cette commande mettra à jour la base de données en ajoutant le nouveau modèle ou en appliquant d'autres modifications que vous avez faites au schéma.
+This command will update the database by adding the new model or applying other changes you've made to the schema.
 
-### Points à Vérifier
+### Points to Check
 
-- **Vérifiez la Configuration** : Assurez-vous que le fichier `.env`
-  contient les informations correctes pour se connecter à votre base de
-  données [voir Configuration des Variables d’Environnement](https://galsenext-docs.vercel.app/docs/guide/configuration#configuration-du-fichier-env).
-- **Consultez la Documentation Prisma** : Pour plus de détails sur l'utilisation de `Prisma` et des fonctionnalités avancées, consultez la [documentation officielle de Prisma](https://www.prisma.io/docs).
+- **Check the Configuration**: Ensure that the `.env` file contains the correct information to connect to your database [see Environment Variables Configuration](https://galsenext-docs.vercel.app/docs/guide/configuration#configuration-du-fichier-env).
+- **Refer to Prisma Documentation**: For more details on using `Prisma` and its advanced features, consult the [official Prisma documentation](https://www.prisma.io/docs).

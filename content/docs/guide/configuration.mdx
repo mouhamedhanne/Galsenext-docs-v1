@@ -5,11 +5,11 @@ description: Guide complet pour configurer et utiliser Galsenext après l'instal
 
 # Configuration
 
-Après l'installation de **Galsenext**, suivez ces étapes pour configurer correctement votre environnement de développement.
+After installing **Galsenext**, follow these steps to properly configure your development environment.
 
-## Configuration du Fichier `.env`
+## Configuration of the `.env` File
 
-Pour que votre application fonctionne correctement, vous devez créer un fichier `.env` à la racine de votre projet et y définir plusieurs variables d'environnement. Voici un exemple de configuration de base :
+To ensure your application runs correctly, you need to create a `.env` file at the root of your project and define several environment variables. Here is an example of a basic configuration:
 
 ```plaintext
 GOOGLE_CLIENT_ID=your-google-client-id
@@ -19,43 +19,32 @@ NEXTAUTH_SECRET=your-nextauth-secret
 DATABASE_URL=your-database-url
 ```
 
-## GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET :
+## GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
 
-- **Ce que c'est** : Identifiants OAuth 2.0 utilisés
-  pour l'authentification via Google.
-- **À quoi ça sert** : Permet aux utilisateurs de se connecter à votre application
-  avec leur compte Google.
-- **Comment les obtenir** : Créez un projet dans [Google Cloud Console](https://cloud.google.com),
-  activez l'API "OAuth 2.0", et générez les identifiants OAuth.
+- **What it is**: OAuth 2.0 credentials used for authentication via Google.
+- **Purpose**: Allows users to log in to your application using their Google account.
+- **How to obtain**: Create a project in [Google Cloud Console](https://cloud.google.com), enable the "OAuth 2.0" API, and generate OAuth credentials.
 
-## NEXTAUTH_URL :
+## NEXTAUTH_URL:
 
-- **Ce que c'est** : L'URL de votre application.
-- **À quoi ça sert** : Utilisée par NextAuth pour définir le domaine principal de
-  l'application. Cette URL est cruciale pour la gestion des redirections après
-  l'authentification.
-- **Comment la définir** : Pour le développement local, utilisez **http://localhost:3000**.
-  En production, utilisez l'URL de votre site ex: **https://votresite.com**.
+- **What it is**: The URL of your application.
+- **Purpose**: Used by NextAuth to define the primary domain of the application. This URL is crucial for handling redirects after authentication.
+- **How to set it**: For local development, use **http://localhost:3000**. In production, use your site's URL, e.g., **https://yoursite.com**.
 
-## NEXTAUTH_SECRET :
+## NEXTAUTH_SECRET:
 
-- **Ce que c'est** : Une clé secrète utilisée pour signer et crypter les tokens de session
-  NextAuth.
-- **À quoi ça sert** : Garantit la sécurité des sessions et des données d'authentification
-  de votre application.
-- **Comment la générer** : Utilisez la commande suivante dans votre terminal pour générer
-  une clé sécurisée :
+- **What it is**: A secret key used to sign and encrypt NextAuth session tokens.
+- **Purpose**: Ensures the security of sessions and authentication data for your application.
+- **How to generate**: Use the following command in your terminal to generate a secure key:
 
 ```bash
 openssl rand -base64 32
 ```
 
-## DATABASE_URL :
+## DATABASE_URL:
 
-- **Ce que c'est** : L'URL de connexion à votre base de données PostgreSQL.
-- **À quoi ça sert** : Permet à Prisma et à votre application d'interagir avec la base de
-  données.
-- **Comment la configurer** :
-  - Créez une base de données sur [Neon](https://neon.tech).
-  - Récupérez l'URL de connexion (format `postgres://user:password@hostname:port/database`)
-    et définissez-la dans votre fichier **.env**.
+- **What it is**: The connection URL to your PostgreSQL database.
+- **Purpose**: Allows Prisma and your application to interact with the database.
+- **How to configure**:
+  - Create a database on [Neon](https://neon.tech).
+  - Retrieve the connection URL (format `postgres://user:password@hostname:port/database`) and set it in your **.env** file.
