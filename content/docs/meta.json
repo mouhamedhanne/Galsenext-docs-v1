@@ -2,6 +2,7 @@
   "title": "docs",
   "pages": [
     "get-started",
+    "---Guide---",
     "guide",
     "api-reference",
     "contributor",
