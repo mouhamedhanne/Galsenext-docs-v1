@@ -178,5 +178,53 @@ export default AuthenticatedContent;
 ### Explication
 
 - **getI18n** : Récupère les traductions côté serveur.
-- LayoutHeader\*\* et LayoutTitle : Composants de mise en page pour la structure de l'application.
+- **LayoutHeader et LayoutTitle** : Composants de mise en page pour la structure de l'application.
 - **t("new")** : Utilise la fonction de traduction pour afficher le texte dans la langue actuelle.
+
+## Configuration du Middleware pour l'Internationalisation (i18n)
+
+Pour une gestion optimale des langues dans votre application, **Galsenext**
+utilise un middleware dédié pour rediriger les utilisateurs vers la
+version linguistique appropriée en fonction de leur préférence
+linguistique ou de la langue par défaut de l'application.
+
+### Middleware `i18n`
+
+```bash
+import { createI18nMiddleware } from "next-international/middleware";
+import { NextRequest } from "next/server";
+
+const I18nMiddleware = createI18nMiddleware({
+  locales: ["en", "fr"],
+  defaultLocale: "en",
+});
+
+export function middleware(request: NextRequest) {
+  return I18nMiddleware(request);
+}
+
+export const config = {
+  matcher: ["/((?!api|static|.*\\..*|_next|favicon.ico|robots.txt).*)"],
+};
+```
+
+### Explication du Middleware
+
+- `createI18nMiddleware` : Cette fonction génère un middleware pour gérer
+  l'internationalisation dans l'application Next.js. Elle est configurée
+  avec les langues supportées (`locales`) et la langue par défaut
+  (`defaultLocale`).
+- `middleware` : Cette fonction est exécutée à chaque requête, appliquant
+  le middleware de redirection linguistique en fonction de la langue de
+  l'utilisateur ou de la langue par défaut.
+- `config` : La configuration du middleware spécifie les routes auxquelles
+  il s'applique, excluant les API, les fichiers statiques, les fichiers
+  générés par Next.js, et autres ressources non pertinentes.
+
+### Pourquoi Utiliser ce Middleware ?
+
+- **Redirection Automatique** : Redirige les utilisateurs vers leur langue
+  préférée ou la langue par défaut, offrant une expérience utilisateur
+  personnalisée.
+- **Gestion Centralisée des Langues** : Simplifie la gestion des langues en concentrant la logique de sélection de langue en un seul endroit.
+- **Support Multilingue Facile** : Rend votre application facilement adaptable pour un public global, en assurant que le bon contenu est servi à la bonne audience.

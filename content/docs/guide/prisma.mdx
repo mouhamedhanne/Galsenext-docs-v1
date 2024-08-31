@@ -7,6 +7,51 @@ description: Guide complet pour configurer et utiliser Galsenext après l'instal
 
 **Galsenext** utilise `Prisma` comme ORM (Object-Relational Mapping) pour interagir avec la base de données. `Prisma` facilite la gestion de vos données et l'interaction avec votre base de données `PostgreSQL`.
 
+## Configuration de l'Instance Prisma
+
+Dans **Galsenext**, Prisma est configuré pour fonctionner de manière optimale
+à la fois en mode développement et en production. Le fichier `prisma.ts`
+situé dans le répertoire `/src/lib/` est configuré pour créer une instance
+unique de Prisma qui est réutilisée tout au long de l'application,
+permettant ainsi d'optimiser les performances et de minimiser les
+problèmes de connexion à la base de données.
+
+```bash
+// @ts-nocheck
+
+import { PrismaClient } from "@prisma/client";
+
+export const prisma: PrismaClient =
+  global.prisma ??
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = prisma;
+}
+```
+
+- **Création d'une Instance Unique de Prisma** : L'instance de Prisma est
+  stockée dans la variable globale `global.prisma` pour éviter de créer
+  plusieurs instances dans un environnement de développement, ce qui
+  pourrait entraîner des erreurs de connexion à la base de données.
+  Cette approche est particulièrement utile avec `Next.js` qui utilise un
+  système de rafraîchissement automatique des modules en mode développement.
+- **Configuration des Logs de Prisma** : En mode développement
+  (`process.env.NODE_ENV === "development"`), Prisma est configuré pour
+  afficher les logs de requêtes, les erreurs et les avertissements
+  (`["query", "error", "warn"]`). En production, seuls les logs d'erreurs
+  sont activés (`["error"]`) pour éviter d'exposer des informations sensibles.
+- **Vérification de l'Environnement** : Le code vérifie si l'environnement
+  n'est pas en production (`process.env.NODE_ENV !== "production"`). Dans
+  ce cas, il assigne l'instance de Prisma à `global.prisma` pour garantir
+  qu'une seule instance est utilisée tout au long du cycle de vie de
+  l'application.
+
 ## Configuration Initiale de Prisma
 
 Le fichier de schéma Prisma `prisma/schema.prisma` est déjà configuré pour l'authentification de base. Voici comment configurer et utiliser Prisma :

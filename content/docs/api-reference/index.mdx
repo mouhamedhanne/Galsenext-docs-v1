@@ -1,0 +1,725 @@
+---
+title: API Référence
+description: Guide complet pour configurer et utiliser Galsenext après l'installation.
+---
+
+Cette section fournit une documentation complète des fonctions, méthodes, composants, et autres éléments clés de **Galsenext**.
+
+## Thème
+
+**ThemeProvider**: `/src/theme/ThemeProvider.tsx`
+
+```bash
+"use client";
+
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes/dist/types";
+
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+}
+```
+
+**ThemeToggle**: `/src/components/ThemeToggle.tsx`
+
+```bash
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+
+export function ThemeToggle() {
+  const { setTheme, theme } = useTheme();
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    >
+      <Sun className="h-[1.5rem] w-[1.3rem] dark:hidden" />
+      <Moon className="hidden h-5 w-5 dark:block" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  );
+}
+```
+
+## Layout
+
+**LayoutComponents**: `/src/components/Layout/Layout.tsx`
+
+```bash
+import type { ComponentPropsWithoutRef } from "react";
+import { cn } from "@/lib/utils";
+import { Typography } from "@/src/components/ui/Typography";
+
+export const Layout = (props: ComponentPropsWithoutRef<"div">) => {
+  return (
+    <div
+      {...props}
+      className={cn(
+        "max-w-3xl flex-wrap w-full flex gap-4 m-auto px-4 mt-4",
+        props.className
+      )}
+    />
+  );
+};
+
+export const LayoutHeader = (props: ComponentPropsWithoutRef<"div">) => {
+  return (
+    <div
+      {...props}
+      className={cn(
+        "flex items-start gap-1 flex-col w-full md:flex-1 min-w-[200px]",
+        props.className
+      )}
+    />
+  );
+};
+
+export const LayoutTitle = (props: ComponentPropsWithoutRef<"h1">) => {
+  return <Typography {...props} variant="h2" className={cn(props.className)} />;
+};
+
+export const LayoutDescription = (props: ComponentPropsWithoutRef<"p">) => {
+  return <Typography {...props} className={cn(props.className)} />;
+};
+
+export const LayoutActions = (props: ComponentPropsWithoutRef<"div">) => {
+  return (
+    <div {...props} className={cn("flex items-center", props.className)} />
+  );
+};
+
+export const LayoutContent = (props: ComponentPropsWithoutRef<"div">) => {
+  return <div {...props} className={cn("w-full", props.className)} />;
+};
+```
+
+## Composants UI
+
+**Typography**: `/src/components/ui/Typography.tsx`
+
+```bash
+import { VariantProps, cva } from "class-variance-authority";
+import type {
+  ComponentPropsWithoutRef,
+  ElementType,
+  PropsWithChildren,
+} from "react";
+import { cn } from "@/lib/utils";
+
+type PolymorphicAsProp<E extends ElementType> = {
+  as?:
+    | E
+    | React.ComponentType<Omit<ComponentPropsWithoutRef<E>, "as">>
+    | React.FunctionComponent<Omit<ComponentPropsWithoutRef<E>, "as">>;
+};
+
+type PolymorphicProps<E extends ElementType> = PropsWithChildren<
+  Omit<ComponentPropsWithoutRef<E>, "as"> & PolymorphicAsProp<E>
+>;
+
+const typographyVariants = cva("", {
+  variants: {
+    variant: {
+      h1: "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl font-caption",
+      h2: "scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0 font-caption",
+      h3: "scroll-m-20 text-xl font-semibold tracking-tight font-caption",
+      p: "leading-7 [&:not(:first-child)]:mt-6",
+      base: "",
+      quote: "mt-6 border-l-2 pl-6 italic",
+      code: "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
+      lead: "text-xl text-muted-foreground",
+      large: "text-lg font-semibold",
+      small: "text-sm font-medium leading-none",
+      muted: "text-sm text-muted-foreground",
+      link: "text-indigo-500 font-medium hover:underline",
+    },
+  },
+  defaultVariants: {
+    variant: "base",
+  },
+});
+
+type TypographyCvaProps = VariantProps<typeof typographyVariants>;
+
+const defaultElement = "p";
+
+const defaultElementMapping: Record<
+  NonNullable<TypographyCvaProps["variant"]>,
+  ElementType
+> = {
+  h1: "h1",
+  h2: "h2",
+  h3: "h3",
+  p: "p",
+  quote: "blockquote" as "p",
+  code: "code",
+  lead: "p",
+  large: "p",
+  small: "p",
+  muted: "p",
+  link: "a",
+  base: "p",
+} as const;
+
+export function Typography<E extends ElementType = typeof defaultElement>({
+  as,
+  children,
+  className,
+  variant,
+  ...restProps
+}: PolymorphicProps<E> & TypographyCvaProps) {
+  const Component: ElementType =
+    as ?? defaultElementMapping[variant ?? "base"] ?? defaultElement;
+
+  return (
+    <Component
+      {...(restProps as ComponentPropsWithoutRef<E>)}
+      className={cn(typographyVariants({ variant }), className)}
+    >
+      {children}
+    </Component>
+  );
+}
+```
+
+**Loader**: `/src/components/ui/Loader.tsx`
+
+```bash
+import { cn } from "@/lib/utils";
+import { Loader2, LucideProps } from "lucide-react";
+
+export const Loader = ({ className, ...props }: LucideProps) => {
+  return <Loader2 className={cn("animate-spin", className)} {...props} />;
+};
+```
+
+## Composants d'Authentification
+
+**LoggedInButton**: `src/features/auth/LoggedInButton.tsx`
+
+```bash
+"use client";
+
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useMutation } from "@tanstack/react-query";
+import { Loader, LogOut, User2 } from "lucide-react";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+
+export type LoggedInButtonProps = {
+  user: Session["user"];
+};
+
+export const LoggedInButton = (props: LoggedInButtonProps) => {
+  const mutation = useMutation({
+    mutationFn: async () => {
+      signOut();
+    },
+  });
+
+  return (
+    <DropdownMenu>
+      <AlertDialog>
+        <DropdownMenuTrigger>
+          <Button variant="outline" size="sm">
+            <Avatar className="mr-2 h-8 w-8">
+              <AvatarFallback>{props.user?.name?.[0]}</AvatarFallback>
+              {props.user.image && (
+                <AvatarImage
+                  src={props.user.image}
+                  alt={props.user.name ?? "user picture"}
+                />
+              )}
+            </Avatar>
+            {props.user.name}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem>
+            <User2 className="mr-2" size={12} /> Account
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem>
+              <LogOut className="mr-2" size={12} /> Logout
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to logout?
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="secondary">Cancel</Button>
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={mutation.isPending}
+              onClick={() => {
+                mutation.mutate();
+              }}
+            >
+              {mutation.isPending ? (
+                <Loader className="mr-2" size={12} />
+              ) : (
+                <LogOut className="mr-2" size={12} />
+              )}
+              Logout
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </DropdownMenu>
+  );
+};
+```
+
+**LoginButton**: `src/features/auth/LoginButton.tsx`
+
+```bash
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { LogIn } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { Loader } from "@/components/ui/loader";
+
+export const LoginButton = () => {
+  const mutation = useMutation({
+    mutationFn: async () => signIn(),
+  });
+
+  return (
+    <Button
+      className="gap-2"
+      variant="outline"
+      size="sm"
+      disabled={mutation.isPending}
+      onClick={() => {
+        mutation.mutate();
+      }}
+    >
+      {mutation.isPending ? <Loader size={12} /> : <LogIn size={12} />}
+      Login
+    </Button>
+  );
+};
+```
+
+**LogoutButton**: `src/features/auth/LogoutButton.tsx`
+
+```bash
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
+import { Loader } from "@/components/ui/loader";
+
+export const LogoutButton = () => {
+  const mutation = useMutation({
+    mutationFn: async () => await signOut({ callbackUrl: "/" }),
+  });
+
+  return (
+    <Button
+      className="gap-2 hover:cursor-pointer"
+      variant="outline"
+      size="sm"
+      disabled={mutation.isPending}
+      onClick={() => {
+        mutation.mutate();
+      }}
+    >
+      {mutation.isPending ? <Loader size={12} /> : <LogOut size={12} />}
+      Logout
+    </Button>
+  );
+};
+```
+
+**User**: `src/features/auth/User.tsx`
+
+```bash
+"use client";
+
+import Link from "next/link";
+import { Loader, LogOut, User, BookOpenText, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useMutation } from "@tanstack/react-query";
+import { Session } from "next-auth";
+import { signOut } from "next-auth/react";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+export type UserNavProps = {
+  user: Session["user"];
+};
+
+export const UserNav = (props: UserNavProps) => {
+  const mutation = useMutation({
+    mutationFn: async () => {
+      await signOut({ callbackUrl: "/" });
+    },
+  });
+
+  return (
+    <DropdownMenu>
+      <AlertDialog>
+        <TooltipProvider disableHoverableContent>
+          <Tooltip delayDuration={100}>
+            <TooltipTrigger asChild>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="relative h-8 w-8 rounded-full"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>{props.user?.name?.[0]}</AvatarFallback>
+                    {props.user?.image && (
+                      <AvatarImage
+                        src={props.user.image}
+                        alt={props.user.name ?? "user picture"}
+                      />
+                    )}
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Profile</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">
+                {props.user?.name}
+              </p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {props.user?.email}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem className="hover:cursor-pointer" asChild>
+              <Link href="/" className="flex items-center">
+                <Home className="w-4 h-4 mr-3 text-muted-foreground" />
+                Home
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer" asChild>
+              <Link href="/write" className="flex items-center">
+                <BookOpenText className="w-4 h-4 mr-3 text-muted-foreground" />
+                Write
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:cursor-pointer" asChild>
+              <Link href="/profile" className="flex items-center">
+                <User className="w-4 h-4 mr-3 text-muted-foreground" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem className="hover:cursor-pointer">
+              <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
+              Sign out
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+        </DropdownMenuContent>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to logout ?
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="secondary">Cancel</Button>
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={mutation.isPending}
+              onClick={() => {
+                mutation.mutate();
+              }}
+            >
+              {mutation.isPending ? (
+                <Loader className="mr-2" size={12} />
+              ) : (
+                <LogOut className="mr-2" size={12} />
+              )}
+              Logout
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </DropdownMenu>
+  );
+};
+```
+
+**Home Page**: `src/app/home/page.tsx`
+
+```bash
+import { AuthenticatedContent } from "@/features/auth/AuthenticatedContent";
+import { PublicContent } from "@/features/auth/PublicContent";
+import { Onboarding } from "@/features/auth/Onboarding";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  if (session?.user?.isNew) {
+    return <Onboarding />;
+  }
+
+  if (session) {
+    return <AuthenticatedContent />;
+  }
+
+  return <PublicContent />;
+}
+```
+
+**Providers**: `src/components/Providers.tsx`
+
+```bash
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { I18nProviderClient } from "@/components/ui/i18n-provider-client";
+
+const queryClient = new QueryClient();
+
+export function Providers({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SessionProvider>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <I18nProviderClient>
+          <QueryClientProvider client={queryClient}>
+            {children}
+            <Toaster />
+          </QueryClientProvider>
+        </I18nProviderClient>
+      </ThemeProvider>
+    </SessionProvider>
+  );
+}
+```
+
+## Utilitaires
+
+**BackButton**: `/src/components/ui/utils/BackButton.tsx`
+
+```bash
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Button, ButtonProps } from "@/components/ui/button";
+
+export const BackButton = (props: ButtonProps) => {
+  const router = useRouter();
+  return (
+    <Button
+      {...props}
+      onClick={(e) => {
+        router.back();
+        props?.onClick?.(e);
+      }}
+    />
+  );
+};
+```
+
+**Breadcrumb**: `/src/components/ui/utils/Breadcrumb.tsx`
+
+```bash
+"use client";
+
+import { useIsClient } from "@/hooks/useIsClient";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Fragment } from "react";
+
+export const Breadcrumb = () => {
+  const _pathname = usePathname();
+  const pathname = _pathname?.split("/").filter(Boolean) ?? [];
+
+  const isClient = useIsClient();
+
+  if (!isClient) return;
+
+  return (
+    <nav aria-label="Breadcrumb" className="mx-4">
+      <ol
+        role="list"
+        className="text-skin-secondary flex items-center gap-1 text-sm"
+      >
+        {pathname.map((item, index) => (
+          <BreadcrumbItem
+            item={item}
+            index={index}
+            pathname={pathname}
+            isPrismaId={isPrismaId}
+          />
+        ))}
+      </ol>
+    </nav>
+  );
+};
+
+const isPrismaId = (id: string): boolean => {
+  const regex = /^[\w-]{25}$/;
+  return regex.test(id);
+};
+
+const formatId = (id: string): string => {
+  if (id.length <= 4) {
+    return id;
+  }
+  return `${id.slice(0, 2)}...${id.slice(-2)}`;
+};
+
+interface BreadcrumbItemProps {
+  item: string;
+  index: number;
+  pathname: string[];
+  isPrismaId: (id: string) => boolean;
+}
+
+const BreadcrumbItem: React.FC<BreadcrumbItemProps> = ({
+  item,
+  index,
+  pathname,
+  isPrismaId,
+}) => {
+  return (
+    <Fragment key={item}>
+      <li>
+        <Link
+          href={`/${pathname.slice(0, index + 1).join("/")}`}
+          className="block text-xs text-muted-foreground transition hover:text-foreground"
+        >
+          {isPrismaId(item) ? formatId(item) : item}
+        </Link>
+      </li>
+      {index !== pathname.length - 1 && (
+        <ChevronRight className="text-muted-foreground" size={16} />
+      )}
+    </Fragment>
+  );
+};
+```
+
+**Pagination**: `src/features/pagination/PaginationButton.tsx`
+
+```bash
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
+export type PaginationButtonProps = {
+  currentPage: number;
+  totalPages: number;
+};
+
+export const PaginationButton = ({
+  currentPage,
+  totalPages,
+}: PaginationButtonProps) => {
+  const router = useRouter();
+
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      router.push(`/page/${page}`);
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={currentPage === 1}
+        onClick={() => handlePageChange(currentPage - 1)}
+      >
+        Prev
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={currentPage === totalPages}
+        onClick={() => handlePageChange(currentPage + 1)}
+      >
+        Next
+      </Button>
+    </div>
+  );
+};
+```
