@@ -1,0 +1,11 @@
+{
+  "title": "docs",
+  "pages": [
+    "get-started",
+    "guide",
+    "api-reference",
+    "contributor",
+    "roadmap",
+    "support"
+  ]
+}

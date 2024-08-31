@@ -4,7 +4,7 @@ export const Logo = () => {
   return (
     <div className="flex items-center space-x-2">
       <Image src="/galsenext.svg" alt="Logo" width={32} height={32} />
-      <span className="font-bold text-lg text-white">Galsenext</span>
+      <span className="font-bold text-lg text-black dark:text-white">Galsenext</span>
     </div>
   );
 };
