@@ -1,26 +1,27 @@
-# galsenext-docs
+<p align="center">
+  <img src="https://galsenext.vercel.app/_next/static/media/galsenext.e19bf31a.svg" alt="Logo galsenext" width="200">
+</p>
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+# Galsenext
 
-Run development server:
+**Galsenext** is a Next.js starter kit that integrates seamlessly with Neon, providing a powerful foundation for building modern, scalable applications.
 
-```bash
-npm run dev
-# or
-pnpm dev
-# or
-yarn dev
-```
+## Features
 
-Open http://localhost:3000 with your browser to see the result.
+- **Optimized for Next.js**: Leverage the power and flexibility of Next.js for optimal server-side rendering and smooth navigation.
+- **Ready-to-Use Authentication**: Includes robust authentication with NextAuth and Prisma, streamlining user management and security.
+- **Seamless Neon Integration**: Connects effortlessly with Neon, a serverless PostgreSQL database, ensuring automatic scalability and performance.
 
-## Learn More
+## Documentation
 
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
+For detailed setup and usage instructions, visit our [documentation](https://galsenext-docs.vercel.app/docs).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.vercel.app) - learn about Fumadocs
+## Contributing
+
+Interested in contributing? Check out our [contributing guide](https://github.com/mouhamedhanne/Galsenext/contributing).
+
+
+## License
+
+This project is under [MIT License](LICENSE.md) ✔
+
